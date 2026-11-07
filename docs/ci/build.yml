@@ -1,0 +1,85 @@
+# Copy this file to .github/workflows/build.yml to activate it.
+#
+# Builds the watch face with the Connect IQ SDK.
+#
+# Garmin only hands out the SDK device files to logged-in developers, so this
+# workflow needs repository secrets (Settings → Secrets and variables → Actions):
+#
+#   GARMIN_USERNAME          Garmin developer account (best: a separate account
+#   GARMIN_PASSWORD          without two-factor authentication, just for CI)
+#   CIQ_AGREEMENT_HASH       from `connect-iq-sdk-manager agreement view` (run locally once)
+#   CIQ_DEVELOPER_KEY_B64    developer key (.der), base64-encoded: `base64 -w0 developer_key.der`
+#
+# Until these secrets exist, the workflow only runs when started by hand.
+name: Build
+
+on:
+  workflow_dispatch:
+  # Enable once the secrets are set:
+  # push:
+  #   branches: [main]
+  # pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      PROJECT_DIR: watchfaces/schlicht
+      DEVICE: venu3
+      SDK_VERSION: "^8.0.0"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Install Connect IQ SDK manager CLI
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/lindell/connect-iq-sdk-manager-cli/master/install.sh | sh
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Download SDK and device files
+        env:
+          GARMIN_USERNAME: ${{ secrets.GARMIN_USERNAME }}
+          GARMIN_PASSWORD: ${{ secrets.GARMIN_PASSWORD }}
+        run: |
+          connect-iq-sdk-manager agreement accept --agreement-hash="${{ secrets.CIQ_AGREEMENT_HASH }}"
+          connect-iq-sdk-manager login
+          connect-iq-sdk-manager sdk set "$SDK_VERSION"
+          echo "$(connect-iq-sdk-manager sdk current-path --bin)" >> "$GITHUB_PATH"
+          connect-iq-sdk-manager device download --manifest="$PROJECT_DIR/manifest.xml"
+
+      - name: Restore developer key
+        run: |
+          echo "${{ secrets.CIQ_DEVELOPER_KEY_B64 }}" | base64 -d > "$RUNNER_TEMP/developer_key.der"
+
+      - name: Build for the device (.prg)
+        run: |
+          mkdir -p bin
+          monkeyc -f "$PROJECT_DIR/monkey.jungle" -d "$DEVICE" \
+            -y "$RUNNER_TEMP/developer_key.der" -o bin/schlicht.prg -w
+
+      - name: Export store package (.iq)
+        run: |
+          monkeyc -f "$PROJECT_DIR/monkey.jungle" -e -r \
+            -y "$RUNNER_TEMP/developer_key.der" -o bin/schlicht.iq -w
+
+      - name: Remove developer key
+        if: always()
+        run: rm -f "$RUNNER_TEMP/developer_key.der"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: schlicht
+          path: |
+            bin/schlicht.prg
+            bin/schlicht.iq

@@ -1,0 +1,6 @@
+project.manifest = manifest.xml
+
+# Default paths (source/, resources/, resources-deu/) are picked up automatically.
+
+# Barrel used directly from its project in this repository.
+base.barrelPath = ../../barrels/notification-dots/monkey.jungle

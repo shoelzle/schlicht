@@ -1,0 +1,28 @@
+import Toybox.Lang;
+
+//! Positions shared by the view and the input delegate, in px on a 454 px
+//! screen. Multiply by scale = screen width / 454.
+module Layout {
+    const DESIGN_SIZE = 454.0;
+
+    // Radius of the circle of minute dots, as far out as possible.
+    const DIAL_DOT_RADIUS = 219.0;
+
+    // Notification dots: first dot above the centre, column grows upwards.
+    const DOTS_FIRST_Y = 176.0;
+
+    // Heart (left, 9 o'clock) and date (right, 3 o'clock): their inner edges
+    // are this far from the centre, on both sides the same. The heart rate
+    // number grows outwards, so the heart itself never moves.
+    const INFO_GAP = 82.0;
+
+    // Font size of date and heart rate; the heart is exactly as tall as the
+    // digits (cap height of Roboto = 0.711 em).
+    const INFO_FONT_SIZE = 26.0;
+    const CAP_HEIGHT = 0.711;
+
+    // Day arc.
+    const ARC_RADIUS = 193.0;
+    const ARC_LABEL_RADIUS = 167.0;
+    const ARC_LABEL_OFFSET_DEG = 12.0;
+}
