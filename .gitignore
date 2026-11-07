@@ -1,0 +1,22 @@
+# Build output
+bin/
+gen/
+*.prg
+*.prg.debug.xml
+*.iq
+mir/
+
+# Developer keys and secrets – never commit these
+*.der
+*.pem
+*.key
+developer_key*
+.env
+.env.*
+
+# Editor and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+__pycache__/
