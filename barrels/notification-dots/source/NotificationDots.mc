@@ -52,9 +52,6 @@ module NotificationDots {
                 continue;
             }
             dc.setColor(grey, Graphics.COLOR_TRANSPARENT);
-            if (dc has :setFill) {
-                dc.setFill((0xff << 24) | grey);   // the fill tool wins over setColor
-            }
             dc.fillCircle(cx, firstY - k * STEP * scale, RADIUS * scale);
         }
     }

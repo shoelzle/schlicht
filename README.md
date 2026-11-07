@@ -19,7 +19,7 @@ Free, open-source watch faces for Garmin® smartwatches, built with the Connect 
   - Softly coloured by the hourly forecast: muted yellow for sun, grey for clouds, blue-grey for rain, cool grey for snow, evening red before a clear sunset. Colours blend smoothly from hour to hour.
   - Fades in about an hour before the hour hand and fades out towards sunset.
   - Sunrise is marked with a small yellowish sun, sunset with a small crescent moon, each with its time (12/24-hour as set on the watch).
-  - At night a dark grey arc runs to the next sunrise. Without weather data the arc stays grey.
+  - At night the arc is hidden; only the sun and moon markers with their times remain. Without weather data the arc stays grey.
 - **Date** at 3 o'clock, e.g. "Sa 7", in your watch's language.
 - **Heart rate** at 9 o'clock: the heart is always there, exactly as tall as the date digits; the number appears to its left only while a live reading is available.
 - **Notifications:** one small dot per unread phone notification, stacked towards 12 o'clock and fading as they go up. **Press and hold** the dots to open the notification list.
@@ -38,7 +38,7 @@ The second hand is only visible while the watch is "awake" (after a wrist turn o
 ### Privacy and permissions
 
 - No internet access of its own, no background service, no data collection, no tracking.
-- Permission **ComplicationSubscriber**: reads sunrise, sunset and the date from the watch, and opens the notification list.
+- Permission **ComplicationSubscriber**: fallback for sunrise and sunset, and opening the notification list.
 - Weather comes from the watch's own weather data (delivered by the Garmin Connect app); the heart rate from the watch's sensor.
 
 ### Supported watches
@@ -150,13 +150,13 @@ tools/render_previews.py       regenerates the preview image and the launcher ic
 
 | Shown | Source |
 |---|---|
-| Sunrise, sunset | native complications `COMPLICATION_TYPE_SUNRISE/SUNSET` |
-| Date | native complication `COMPLICATION_TYPE_WEEKDAY_MONTHDAY`, fallback `Time.Gregorian` |
+| Sunrise, sunset | `Weather.getSunrise/getSunset` for the weather location, fallback: native complications `COMPLICATION_TYPE_SUNRISE/SUNSET` |
+| Date | `Time.Gregorian` (weekday abbreviation in the watch's language, day without leading zero) |
 | Day arc colours | `Weather.getCurrentConditions()` and `Weather.getHourlyForecast()`, rebuilt every 10 minutes |
 | Heart rate | `Activity.getActivityInfo().currentHeartRate` (live value only) |
 | Notifications | `System.getDeviceSettings().notificationCount`; press-and-hold opens `COMPLICATION_TYPE_NOTIFICATION_COUNT` |
 
-Drawing notes: hands are filled polygons, so fractional widths work with anti-aliasing; their soft edge is two translucent layers. On devices with `Dc.setFill`, the fill tool overrides `setColor`, so colours are always set with both (`setFg()` in the view, also in the barrel). `drawArc` only takes whole degrees, so the day arc is drawn in 1–2° pieces.
+Drawing notes: hands are filled polygons, so fractional widths work with anti-aliasing; their soft edge is two slightly wider grey layers (white at 25 % and 50 % over black). Colours are only set with `setColor`: the alpha fill tool `setFill` is avoided, because opaque white as ARGB (`0xFFFFFFFF`) equals `-1`, which Connect IQ treats as `COLOR_TRANSPARENT`. Text is positioned by its cap height (derived from `getFontAscent`), so digits and the heart line up exactly. Sunrise and sunset come from `Weather.getSunrise/getSunset` for the weather location (falling back to the native complications). `drawArc` only takes whole degrees, so the day arc is drawn in 1–2° pieces.
 
 ## Notification dots as a reusable module
 

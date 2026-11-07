@@ -41,18 +41,18 @@ def ticks():
 
 
 # Soft edge: two translucent layers (extra width, opacity) under the white core
-SOFT_EDGE = [(2.0, 0.25), (1.0, 0.5)]
+SOFT_EDGE = [(2.0, "#404040"), (1.0, "#808080")]   # white at 25 % / 50 % over black
 
 
 def hand(deg, length, tail, width, color="#ffffff", soft=True):
     # rounded bar drawn pointing up, then rotated around the centre
-    layers = (SOFT_EDGE if soft else []) + [(0.0, 1.0)]
+    layers = (SOFT_EDGE if soft else []) + [(0.0, color)]
     out = []
-    for extra, opacity in layers:
+    for extra, fill in layers:
         w = width + extra
         out.append(
             f'<rect x="{C - w / 2:.2f}" y="{C - length - extra / 2:.2f}" width="{w}" '
-            f'height="{length + tail + extra}" rx="{w / 2}" fill="{color}" fill-opacity="{opacity}" '
+            f'height="{length + tail + extra}" rx="{w / 2}" fill="{fill}" '
             f'transform="rotate({deg:.2f} {C} {C})"></rect>'
         )
     return "".join(out)
@@ -119,7 +119,7 @@ def _color_at(h):
     return WEATHER[FORECAST[-1][1]]
 
 
-def weather_arc(r, width=2):
+def weather_arc(r, width=2.5):
     now = (H % 12) + M / 60 + S / 3600
     end = SUNSET[0] - 12 + SUNSET[1] / 60 + 12  # keep 24 h value for colours
     out, step = [], 1 / 60
@@ -156,20 +156,20 @@ def extras():
     # day arc: from "now" (hour hand) to sunset, radius 193, in forecast colours
     r = 193
     out.append(weather_arc(r))
-    for (h, m), off in ((SUNRISE, -12), (SUNSET, 12)):
+    for (h, m), off in ((SUNRISE, -15), (SUNSET, 15)):
         x, y = ppt(r, dial(h, m))
         if (h, m) == SUNRISE:   # small sun: disc with eight rays
-            out.append(f'<circle cx="{x:.2f}" cy="{y:.2f}" r="3" fill="{SUN}"></circle>')
+            out.append(f'<circle cx="{x:.2f}" cy="{y:.2f}" r="6" fill="{SUN}"></circle>')
             for i in range(8):
                 a = math.radians(i * 45)
-                out.append(f'<line x1="{x + 5 * math.sin(a):.2f}" y1="{y - 5 * math.cos(a):.2f}" '
-                           f'x2="{x + 7.5 * math.sin(a):.2f}" y2="{y - 7.5 * math.cos(a):.2f}" '
-                           f'stroke="{SUN}" stroke-width="1.5"></line>')
+                out.append(f'<line x1="{x + 9.5 * math.sin(a):.2f}" y1="{y - 9.5 * math.cos(a):.2f}" '
+                           f'x2="{x + 14 * math.sin(a):.2f}" y2="{y - 14 * math.cos(a):.2f}" '
+                           f'stroke="{SUN}" stroke-width="2.5"></line>')
         else:                   # small crescent moon: disc with a black disc cut out
-            out.append(f'<circle cx="{x:.2f}" cy="{y:.2f}" r="6.5" fill="{TXT}"></circle>')
-            out.append(f'<circle cx="{x + 3.1:.2f}" cy="{y - 2.3:.2f}" r="5.5" fill="#000000"></circle>')
-        lx, ly = ppt(167, dial(h, m) + off)
-        out.append(text(lx, ly, f"{h:02d}:{m:02d}", 19, TXT))
+            out.append(f'<circle cx="{x:.2f}" cy="{y:.2f}" r="13" fill="{TXT}"></circle>')
+            out.append(f'<circle cx="{x + 6.2:.2f}" cy="{y - 4.6:.2f}" r="11" fill="#000000"></circle>')
+        lx, ly = ppt(163, dial(h, m) + off)
+        out.append(text(lx, ly, f"{h:02d}:{m:02d}", 25, TXT))
     # date and heart rate
     # date and heart: inner edges 82 px from the centre, heart exactly as tall as the digits
     size = 26

@@ -17,12 +17,11 @@ module Layout {
     const INFO_GAP = 82.0;
 
     // Font size of date and heart rate; the heart is exactly as tall as the
-    // digits (cap height of Roboto = 0.711 em).
+    // digits (derived from the font's ascent in SchlichtView.capHeight).
     const INFO_FONT_SIZE = 26.0;
-    const CAP_HEIGHT = 0.711;
 
     // Day arc.
     const ARC_RADIUS = 193.0;
-    const ARC_LABEL_RADIUS = 167.0;
-    const ARC_LABEL_OFFSET_DEG = 12.0;
+    const ARC_LABEL_RADIUS = 163.0;
+    const ARC_LABEL_OFFSET_DEG = 15.0;
 }
