@@ -1,6 +1,6 @@
-# smartwatch-designs
+# Schlicht
 
-Free, open-source watch faces for Garmin® smartwatches, built with the Connect IQ™ SDK.
+A free, open-source analog watch face for Garmin® smartwatches, built with the Connect IQ™ SDK.
 
 > **Status:** in development. *Schlicht* runs on a Venu 3 as a private beta app; it is not published in the Connect IQ Store yet. For now you build and install it yourself (see [Build it yourself](#build-it-yourself)).
 
@@ -23,7 +23,7 @@ Free, open-source watch faces for Garmin® smartwatches, built with the Connect 
   - At night the arc is hidden; only the sun and moon markers with their times remain. Without weather data the arc stays grey.
 - **Date** at 3 o'clock, e.g. "Sa 7", in your watch's language.
 - **Heart rate** at 9 o'clock: the heart is always there, exactly as tall as the date digits; the number appears to its left only while a live reading is available.
-- **Notifications:** one small dot per unread phone notification, stacked towards 12 o'clock and fading as they go up. **Press and hold** the dots to open the notification list.
+- **Notifications:** one small dot per unread phone notification, stacked towards 12 o'clock and fading as they go up. **Press and hold** the dots to open the notification list (tested on a Venu 3).
 - **Always-on mode:** only thin hands and twelve dots, shifting a few pixels every minute to follow Garmin's burn-in rules for AMOLED screens.
 
 ### Settings

@@ -151,6 +151,39 @@ def weather_arc(r, width=2.5):
     return "".join(out)
 
 
+def launcher_icon_svg():
+    """Simplified face for the 70 x 70 px launcher icon: details of the full
+    design would turn into noise at that size."""
+    c, out = 35, []
+    out.append(f'<circle cx="{c}" cy="{c}" r="35" fill="#000000"></circle>')
+
+    def p(r, deg):
+        a = math.radians(deg)
+        return c + r * math.sin(a), c - r * math.cos(a)
+
+    # day arc from 10 to 5 o'clock, yellow → grey → evening red
+    stops = [(0.0, "#b89a3e"), (0.5, "#8f8a72"), (1.0, "#a85a44")]
+    a0, a1, steps = 300.0, 510.0, 42
+    for i in range(steps):
+        t = i / steps
+        for (t0, c0), (t1, c1) in zip(stops, stops[1:]):
+            if t0 <= t <= t1:
+                col = _mix(c0, c1, (t - t0) / (t1 - t0))
+        x1, y1 = p(27, a0 + (a1 - a0) * i / steps - 0.3)
+        x2, y2 = p(27, a0 + (a1 - a0) * (i + 1) / steps + 0.3)
+        out.append(f'<path d="M {x1:.2f} {y1:.2f} A 27 27 0 0 1 {x2:.2f} {y2:.2f}" fill="none" '
+                   f'stroke="{col}" stroke-width="2.4"></path>')
+    for i in range(12):
+        x, y = p(32, i * 30)
+        out.append(f'<circle cx="{x:.2f}" cy="{y:.2f}" r="{1.6 if i % 3 == 0 else 1.0}" fill="#a6a6a6"></circle>')
+    for deg, length, width in ((304.5, 16, 4.2), (54, 24, 3.0)):
+        out.append(f'<rect x="{c - width / 2:.2f}" y="{c - length:.2f}" width="{width}" height="{length + 3}" '
+                   f'rx="{width / 2}" fill="#ffffff" transform="rotate({deg} {c} {c})"></rect>')
+    out.append(f'<circle cx="{c}" cy="{c}" r="2.4" fill="#ffffff"></circle>')
+    return ('<svg xmlns="http://www.w3.org/2000/svg" width="70" height="70" viewBox="0 0 70 70">'
+            + "".join(out) + "</svg>\n")
+
+
 def extras():
     out = []
     # day arc: from "now" (hour hand) to sunset, radius 193, in forecast colours
@@ -217,9 +250,11 @@ def main():
             f.write(SVG.format(label=label, body=face(key)))
         if rsvg:
             subprocess.run([rsvg, "-w", "454", "-h", "454", svg, "-o", svg[:-4] + ".png"], check=True)
+    icon_svg = os.path.join(images, "launcher-icon.svg")
+    with open(icon_svg, "w") as f:
+        f.write(launcher_icon_svg())
     if rsvg:
-        plain = os.path.join(images, "schlicht-plain.svg")
-        subprocess.run([rsvg, "-w", "70", "-h", "70", plain, "-o", icon], check=True)
+        subprocess.run([rsvg, "-w", "70", "-h", "70", icon_svg, "-o", icon], check=True)
     else:
         print("rsvg-convert not found: only SVGs written", file=sys.stderr)
 
