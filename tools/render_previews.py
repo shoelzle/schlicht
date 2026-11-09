@@ -61,13 +61,13 @@ def hand(deg, length, tail, width, color="#ffffff", soft=True):
 def face(variant):
     parts = ticks()
     parts.append(extras())
-    parts.append(hand(hour_deg, 120, 16, 7.2))
-    parts.append(hand(min_deg, 198, 16, 4.5))
+    parts.append(hand(hour_deg, 120, 16, 8.28))
+    parts.append(hand(min_deg, 198, 16, 5.18))
     x1, y1 = pt(-34, sec_deg)
     x2, y2 = pt(204, sec_deg)
     parts.append(
         f'<line x1="{x1:.2f}" y1="{y1:.2f}" x2="{x2:.2f}" y2="{y2:.2f}" '
-        f'stroke="#ffffff" stroke-width="1.6" stroke-linecap="round"></line>'
+        f'stroke="#ffffff" stroke-width="1.84" stroke-linecap="round"></line>'
     )
     parts.append(f'<circle cx="{C}" cy="{C}" r="6" fill="#ffffff"></circle>')
     parts.append(f'<circle cx="{C}" cy="{C}" r="2" fill="#000000"></circle>')
@@ -172,7 +172,7 @@ def extras():
         out.append(text(lx, ly, f"{h:02d}:{m:02d}", 25, TXT))
     # date and heart rate
     # date and heart: inner edges 82 px from the centre, heart exactly as tall as the digits
-    size = 26
+    size = 29.9
     out.append(text(C + 82, C, DATE_TEXT, size, DATE, "start"))
     k = size * 0.711 / 28.92
     heart_w = 32 * k
@@ -183,7 +183,7 @@ def extras():
         x = 16 * math.sin(t) ** 3
         y = -(13 * math.cos(t) - 5 * math.cos(2 * t) - 2 * math.cos(3 * t) - math.cos(4 * t)) - 2.54
         pts.append(f"{hx + x * k:.2f},{C + y * k:.2f}")
-    out.append(f'<polygon points="{" ".join(pts)}" fill="none" stroke="{DATE}" stroke-width="2.2" '
+    out.append(f'<polygon points="{" ".join(pts)}" fill="none" stroke="{DATE}" stroke-width="2.64" '
                f'stroke-linejoin="round"></polygon>')
     out.append(text(C - 82 - heart_w - 7, C, HEART_RATE, size, DATE, "end"))
     # notification dots, fading upwards

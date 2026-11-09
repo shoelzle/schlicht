@@ -18,10 +18,12 @@ module Layout {
 
     // Font size of date and heart rate; the heart is exactly as tall as the
     // digits (derived from the font's ascent in SchlichtView.capHeight).
-    const INFO_FONT_SIZE = 26.0;
+    const INFO_FONT_SIZE = 29.9;
 
     // Day arc.
     const ARC_RADIUS = 193.0;
     const ARC_LABEL_RADIUS = 163.0;
     const ARC_LABEL_OFFSET_DEG = 15.0;
+    // Long days (> 11 h): the arc spirals inwards by this much per 12 hours.
+    const SPIRAL_GAP = 8.0;
 }

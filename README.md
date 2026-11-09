@@ -19,6 +19,7 @@ Free, open-source watch faces for Garmin® smartwatches, built with the Connect 
   - Softly coloured by the hourly forecast: muted yellow for sun, grey for clouds, blue-grey for rain, cool grey for snow, evening red before a clear sunset. Colours blend smoothly from hour to hour.
   - Fades in about an hour before the hour hand and fades out towards sunset.
   - Sunrise is marked with a small yellowish sun, sunset with a small crescent moon, each with its time (12/24-hour as set on the watch).
+  - On long days (more than 11 hours between sunrise and sunset) the arc becomes a slight spiral that moves inwards over time, so its end never overlaps its start.
   - At night the arc is hidden; only the sun and moon markers with their times remain. Without weather data the arc stays grey.
 - **Date** at 3 o'clock, e.g. "Sa 7", in your watch's language.
 - **Heart rate** at 9 o'clock: the heart is always there, exactly as tall as the date digits; the number appears to its left only while a live reading is available.
@@ -195,6 +196,10 @@ python3 tools/render_previews.py
 ## Continuous integration
 
 `docs/ci/build.yml` is a GitHub Actions template that builds the `.prg` and `.iq`. Garmin only hands out the SDK device files after login, so it uses [connect-iq-sdk-manager-cli](https://github.com/lindell/connect-iq-sdk-manager-cli) with repository secrets (`GARMIN_USERNAME`, `GARMIN_PASSWORD`, `CIQ_AGREEMENT_HASH`, `CIQ_DEVELOPER_KEY_B64`). Copy it to `.github/workflows/` once the secrets are set; a separate Garmin account without two-factor authentication is recommended. The template is not tested yet.
+
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md). Versions follow [Semantic Versioning](https://semver.org).
 
 ## Contributing
 

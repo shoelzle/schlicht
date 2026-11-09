@@ -39,6 +39,7 @@ class SchlichtView extends WatchUi.WatchFace {
     private const SECONDS_PER_DIAL = 43200;   // 12 hours
     private const FADE_SECONDS = 3600;        // soft start of the day arc
     private const FADE_OUT_SECONDS = 1440;    // soft end at sunset: two minute dots (12 degrees)
+    private const SPIRAL_FROM_SECONDS = 39600; // more than 11 h of daylight: spiral
 
     private var _awake as Boolean = true;
     private var _showSeconds as Boolean = true;
@@ -49,6 +50,12 @@ class SchlichtView extends WatchUi.WatchFace {
     private var _sunrise as Number? = null;
     private var _sunset as Number? = null;
     private var _sunCheckedAt as Number = -1;
+
+    // Day arc geometry for the current frame (see radiusAt).
+    private var _arcR0 as Float = 0.0;
+    private var _arcGap as Float = 0.0;
+    private var _arcT0 as Number = 0;
+    private var _arcScale as Float = 1.0;
 
     //! Heart outline, unit size 32 x HEART_HEIGHT, centred on 0/0.
     private var _heart as Array<[Float, Float]> = [] as Array<[Float, Float]>;
@@ -104,10 +111,10 @@ class SchlichtView extends WatchUi.WatchFace {
         NotificationDots.draw(dc, cx, Layout.DOTS_FIRST_Y * s, s);
 
         var minuteAngle = (time.min + time.sec / 60.0) * 6.0;
-        drawHand(dc, cx, cy, hourAngle, 120 * s, 16 * s, 7.2 * s, true);
-        drawHand(dc, cx, cy, minuteAngle, 198 * s, 16 * s, 4.5 * s, true);
+        drawHand(dc, cx, cy, hourAngle, 120 * s, 16 * s, 8.28 * s, true);
+        drawHand(dc, cx, cy, minuteAngle, 198 * s, 16 * s, 5.18 * s, true);
         if (_showSeconds) {
-            drawHand(dc, cx, cy, time.sec * 6.0, 204 * s, 34 * s, 1.6 * s, false);
+            drawHand(dc, cx, cy, time.sec * 6.0, 204 * s, 34 * s, 1.84 * s, false);
         }
         setFg(dc, WHITE);
         dc.fillCircle(cx, cy, 6 * s);
@@ -144,21 +151,30 @@ class SchlichtView extends WatchUi.WatchFace {
         fillHand(dc, cx, cy, deg, length, tail, width);
     }
 
-    //! Filled bar with round ends, drawn as a polygon so that fractional
-    //! widths work with anti-aliasing.
+    //! Filled bar with round ends as ONE polygon (rounded ends built from
+    //! 7 points each). fillCircle would round its centre and radius to whole
+    //! pixels and leave small bumps at the ends of fractional-width hands.
     private function fillHand(dc as Dc, cx as Float, cy as Float, deg as Float,
             length as Float, tail as Float, width as Float) as Void {
         var sin = sinDeg(deg);
         var cos = cosDeg(deg);
-        var x1 = cx - tail * sin;
-        var y1 = cy + tail * cos;
-        var x2 = cx + length * sin;
-        var y2 = cy - length * cos;
-        var px = width / 2 * cos;
-        var py = width / 2 * sin;
-        dc.fillPolygon([[x1 - px, y1 - py], [x1 + px, y1 + py], [x2 + px, y2 + py], [x2 - px, y2 - py]]);
-        dc.fillCircle(x1, y1, width / 2);
-        dc.fillCircle(x2, y2, width / 2);
+        var half = width / 2;
+        var tipX = cx + length * sin;
+        var tipY = cy - length * cos;
+        var tailX = cx - tail * sin;
+        var tailY = cy + tail * cos;
+        var pts = [] as Array<Point2D>;
+        // tip cap: from the left side over the tip to the right side
+        for (var i = 0; i <= 6; i++) {
+            var a = deg - 90.0 + i * 30.0;
+            pts.add([tipX + half * sinDeg(a), tipY - half * cosDeg(a)]);
+        }
+        // tail cap: from the right side over the tail end to the left side
+        for (var i = 0; i <= 6; i++) {
+            var a = deg + 90.0 + i * 30.0;
+            pts.add([tailX + half * sinDeg(a), tailY - half * cosDeg(a)]);
+        }
+        dc.fillPolygon(pts);
     }
 
     // ------------------------------------------------------------- day arc
@@ -175,49 +191,58 @@ class SchlichtView extends WatchUi.WatchFace {
             return;
         }
 
-        var r = Layout.ARC_RADIUS * s;
-        if (now >= sunrise && now < sunset) {
-            var remaining = sunset - now;
-            if (remaining > SECONDS_PER_DIAL - 60) {
-                remaining = SECONDS_PER_DIAL - 60;    // never more than one turn
+        // Long days become a spiral: later = further in, so the end of the arc
+        // never overlaps its start (ADR-004).
+        _arcR0 = Layout.ARC_RADIUS * s;
+        _arcT0 = sunrise;
+        _arcGap = (sunset - sunrise > SPIRAL_FROM_SECONDS) ? Layout.SPIRAL_GAP * s : 0.0;
+        _arcScale = s;
+
+        if (now >= sunrise && now < sunset && sunset - now >= 60) {
+            WeatherArc.update(now, sunset);
+            // fade in over the last hour before the hour hand, in the colour of "now"
+            var fadeFrom = now - FADE_SECONDS;
+            if (fadeFrom < sunrise) {
+                fadeFrom = sunrise;
             }
-            if (remaining >= 60) {
-                WeatherArc.update(now, sunset);
-                // fade in over the last hour before the hour hand, in the colour of "now"
-                var fadeFrom = now - FADE_SECONDS;
-                if (fadeFrom < sunrise) {
-                    fadeFrom = sunrise;
-                }
-                var nowColor = WeatherArc.hasData() ? WeatherArc.colorAt(now) : ARC_DAY;
-                drawFadeIn(dc, cx, cy, r, fadeFrom, now, nowColor);
-                drawWeatherArc(dc, cx, cy, r, now, now + remaining, now + remaining == sunset);
-            }
+            var nowColor = WeatherArc.hasData() ? WeatherArc.colorAt(now) : ARC_DAY;
+            drawFadeIn(dc, cx, cy, fadeFrom, now, nowColor);
+            drawWeatherArc(dc, cx, cy, now, sunset);
         }
 
         var riseDeg = dialDegrees(sunrise);
         var setDeg = dialDegrees(sunset);
-        drawSun(dc, cx + r * sinDeg(riseDeg), cy - r * cosDeg(riseDeg), s);
-        drawMoon(dc, cx + r * sinDeg(setDeg), cy - r * cosDeg(setDeg), s);
+        var riseR = radiusAt(sunrise);
+        var setR = radiusAt(sunset);
+        drawSun(dc, cx + riseR * sinDeg(riseDeg), cy - riseR * cosDeg(riseDeg), s);
+        drawMoon(dc, cx + setR * sinDeg(setDeg), cy - setR * cosDeg(setDeg), s);
 
         setFg(dc, TEXT_GREY);
-        var lr = Layout.ARC_LABEL_RADIUS * s;
+        var labelIn = (Layout.ARC_RADIUS - Layout.ARC_LABEL_RADIUS) * s;
         var a = riseDeg - Layout.ARC_LABEL_OFFSET_DEG;
+        var lr = riseR - labelIn;
         drawCentered(dc, cx + lr * sinDeg(a), cy - lr * cosDeg(a), _labelFont, formatTime(sunrise));
         a = setDeg + Layout.ARC_LABEL_OFFSET_DEG;
+        lr = setR - labelIn;
         drawCentered(dc, cx + lr * sinDeg(a), cy - lr * cosDeg(a), _labelFont, formatTime(sunset));
     }
 
-    //! Day arc in forecast colours (grey without weather data), drawn in
-    //! 2-degree (4-minute) pieces. With fadeOut, the last FADE_OUT_SECONDS
-    //! fade to black, so the arc dissolves into the moon at sunset.
-    private function drawWeatherArc(dc as Dc, cx as Float, cy as Float, r as Float,
-            from as Number, to as Number, fadeOut as Boolean) as Void {
+    //! Radius of the day arc at a time of day: constant on short days, moving
+    //! inwards by SPIRAL_GAP per 12 hours on long days.
+    private function radiusAt(t as Number) as Float {
+        return _arcR0 - _arcGap * (t - _arcT0) / SECONDS_PER_DIAL.toFloat();
+    }
+
+    //! Day arc from "from" to sunset in forecast colours (grey without weather
+    //! data), in 2-degree (4-minute) pieces. The last FADE_OUT_SECONDS fade to
+    //! black, so the arc dissolves into the moon.
+    private function drawWeatherArc(dc as Dc, cx as Float, cy as Float, from as Number, to as Number) as Void {
         var weather = WeatherArc.hasData();
         var fadeStart = to - FADE_OUT_SECONDS;
         var t = from;
         while (t < to) {
             // finer 1-degree pieces where the arc fades out
-            var t2 = t + ((fadeOut && t >= fadeStart) ? 120 : 240);
+            var t2 = t + ((t >= fadeStart) ? 120 : 240);
             if (t2 > to) {
                 t2 = to;
             }
@@ -227,11 +252,11 @@ class SchlichtView extends WatchUi.WatchFace {
             if (a1 != a2) {
                 var mid = (t + t2) / 2;
                 var color = weather ? WeatherArc.colorAt(mid) : ARC_DAY;
-                if (fadeOut && mid > fadeStart) {
+                if (mid > fadeStart) {
                     var f = (mid - fadeStart).toFloat() / FADE_OUT_SECONDS;
                     color = WeatherArc.mix(color, BLACK, f * f * (3 - 2 * f));
                 }
-                arcPiece(dc, cx, cy, r, a1, a2, color);
+                arcPiece(dc, cx, cy, radiusAt(mid), a1, a2, color);
             }
             t = t2;
         }
@@ -239,7 +264,7 @@ class SchlichtView extends WatchUi.WatchFace {
 
     //! Soft start of the day arc: from black to the given colour between
     //! "from" and "to" (the hour hand), in 2-degree pieces.
-    private function drawFadeIn(dc as Dc, cx as Float, cy as Float, r as Float,
+    private function drawFadeIn(dc as Dc, cx as Float, cy as Float,
             from as Number, to as Number, color as Number) as Void {
         var span = to - from;
         if (span < 240) {
@@ -254,8 +279,9 @@ class SchlichtView extends WatchUi.WatchFace {
             var a1 = arcDegree(t);
             var a2 = arcDegree(t2);
             if (a1 != a2) {
-                var f = ((t + t2) / 2 - from).toFloat() / span;
-                arcPiece(dc, cx, cy, r, a1, a2, WeatherArc.mix(BLACK, color, f * f * (3 - 2 * f)));
+                var mid = (t + t2) / 2;
+                var f = (mid - from).toFloat() / span;
+                arcPiece(dc, cx, cy, radiusAt(mid), a1, a2, WeatherArc.mix(BLACK, color, f * f * (3 - 2 * f)));
             }
             t = t2;
         }
@@ -266,7 +292,7 @@ class SchlichtView extends WatchUi.WatchFace {
     //! just outside it.
     private function arcPiece(dc as Dc, cx as Float, cy as Float, r as Float,
             a1 as Number, a2 as Number, color as Number) as Void {
-        var s = r / Layout.ARC_RADIUS;
+        var s = _arcScale;
         setFg(dc, color);
         setPen(dc, 2.0 * s);
         dc.drawArc(cx, cy, r, Graphics.ARC_CLOCKWISE, a1, a2);
@@ -397,7 +423,7 @@ class SchlichtView extends WatchUi.WatchFace {
                 hr.toString(), Graphics.TEXT_JUSTIFY_RIGHT);
         }
 
-        setPen(dc, 2.2 * s);
+        setPen(dc, 2.64 * s);
         var n = _heart.size();
         for (var i = 0; i < n; i++) {
             var p = _heart[i];
