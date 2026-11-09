@@ -19,8 +19,5 @@
             <iq:language>eng</iq:language>
             <iq:language>deu</iq:language>
         </iq:languages>
-        <iq:barrels>
-            <iq:depends name="NotificationDots" version="0.1.0"/>
-        </iq:barrels>
     </iq:application>
 </iq:manifest>

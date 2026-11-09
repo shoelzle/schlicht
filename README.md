@@ -141,9 +141,9 @@ watchfaces/schlicht/
   source/SchlichtView.mc       drawing: dial, hands, day arc, date, heart rate, always-on
   source/WeatherArc.mc         forecast → colours along the day arc
   source/SchlichtDelegate.mc   press-and-hold on the notification dots
+  source/NotificationDots.mc   notification dots: drawing and touch area
   source/Layout.mc             shared positions and sizes (454 px design)
   resources/ resources-deu/    strings (English, German), settings, launcher icon
-barrels/notification-dots/     reusable module (Monkey C barrel) for the notification dots
 docs/images/                   preview images used in this README
 docs/ci/build.yml              CI build template (see below)
 tools/render_previews.py       regenerates the preview image and the launcher icon
@@ -155,35 +155,9 @@ tools/render_previews.py       regenerates the preview image and the launcher ic
 | Date | `Time.Gregorian` (weekday abbreviation in the watch's language, day without leading zero) |
 | Day arc colours | `Weather.getCurrentConditions()` and `Weather.getHourlyForecast()`, rebuilt every 10 minutes |
 | Heart rate | `Activity.getActivityInfo().currentHeartRate` (live value only) |
-| Notifications | `System.getDeviceSettings().notificationCount`; press-and-hold opens `COMPLICATION_TYPE_NOTIFICATION_COUNT` |
+| Notifications | `System.getDeviceSettings().notificationCount`, one dot per notification (up to five, each darker than the one below); press-and-hold opens `COMPLICATION_TYPE_NOTIFICATION_COUNT` via `Complications.exitTo` (needs the `ComplicationSubscriber` permission) |
 
 Drawing notes: hands are filled polygons, so fractional widths work with anti-aliasing; their soft edge is two slightly wider grey layers (white at 25 % and 50 % over black). Colours are only set with `setColor`: the alpha fill tool `setFill` is avoided, because opaque white as ARGB (`0xFFFFFFFF`) equals `-1`, which Connect IQ treats as `COLOR_TRANSPARENT`. Text is positioned by its cap height (derived from `getFontAscent`), so digits and the heart line up exactly. Sunrise and sunset come from `Weather.getSunrise/getSunset` for the weather location (falling back to the native complications). `drawArc` only takes whole degrees, so the day arc is drawn in 1–2° pieces.
-
-## Notification dots as a reusable module
-
-`barrels/notification-dots` is a Monkey C *barrel* that any watch face can include:
-
-```monkeyc
-// in onUpdate(): first dot at (cx, firstY), the column grows upwards
-NotificationDots.draw(dc, cx, firstY, scale);   // scale = screen width / 454
-
-// in a WatchFaceDelegate: open the notification list on press-and-hold
-function onPress(clickEvent as WatchUi.ClickEvent) as Boolean {
-    var xy = clickEvent.getCoordinates();
-    if (NotificationDots.contains(xy[0], xy[1], cx, firstY, scale)) {
-        Complications.exitTo(new Complications.Id(Complications.COMPLICATION_TYPE_NOTIFICATION_COUNT));
-        return true;
-    }
-    return false;
-}
-```
-
-To use it:
-
-1. `manifest.xml`: add `<iq:depends name="NotificationDots" version="0.1.0"/>` under `<iq:barrels>` and the permission `ComplicationSubscriber` (for opening the list).
-2. `monkey.jungle`: `base.barrelPath = path/to/barrels/notification-dots/monkey.jungle`.
-
-One dot per unread notification (up to five), each darker than the one below; the fifth has faded to black.
 
 ## Preview images
 

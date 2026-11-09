@@ -12,7 +12,7 @@ import Toybox.WatchUi;
 
 //! A plain analog watch face: white on black, slim hands, grey dots at the edge.
 //! Quietly in the background: day arc in weather colours with sun and moon,
-//! date, heart rate and unread notifications (NotificationDots barrel).
+//! date, heart rate and unread notifications (NotificationDots).
 //!
 //! All sizes are designed for a 454 px round screen (Venu 3) and scaled to the
 //! actual screen size, so smaller round devices (e.g. Venu 3S, 390 px) work too.

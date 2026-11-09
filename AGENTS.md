@@ -1,6 +1,6 @@
 # Notes for contributors and coding agents
 
-## Every change to a watch face or barrel
+## Every change to the watch face
 
 1. **Version:** bump according to [Semantic Versioning](https://semver.org) (while below 1.0.0: new feature → minor, fix or visual tweak → patch).
 2. **Changelog:** add an entry to [CHANGELOG.md](CHANGELOG.md) (Keep a Changelog: Added / Changed / Fixed, newest on top, compare link at the bottom).

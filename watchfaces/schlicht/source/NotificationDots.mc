@@ -9,7 +9,7 @@ import Toybox.System;
 //! is darker than the one below it; the fifth one has faded to black, so from
 //! four notifications on the column looks the same.
 //!
-//! Usage in a watch face:
+//! Usage:
 //!   NotificationDots.draw(dc, centerX, firstDotY, scale);
 //!   if (NotificationDots.contains(x, y, centerX, firstDotY, scale)) { ... }
 module NotificationDots {
