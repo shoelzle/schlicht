@@ -151,8 +151,8 @@ class SchlichtView extends WatchUi.WatchFace {
         fillHand(dc, cx, cy, deg, length, tail, width);
     }
 
-    //! Filled bar with round ends as ONE polygon (rounded ends built from
-    //! 7 points each). fillCircle would round its centre and radius to whole
+    //! Filled bar with round ends as ONE polygon. The tip is a fine half
+    //! circle (13 points, 15° steps), the tail a coarser one (7 points). fillCircle would round its centre and radius to whole
     //! pixels and leave small bumps at the ends of fractional-width hands.
     private function fillHand(dc as Dc, cx as Float, cy as Float, deg as Float,
             length as Float, tail as Float, width as Float) as Void {
@@ -165,8 +165,8 @@ class SchlichtView extends WatchUi.WatchFace {
         var tailY = cy + tail * cos;
         var pts = [] as Array<Point2D>;
         // tip cap: from the left side over the tip to the right side
-        for (var i = 0; i <= 6; i++) {
-            var a = deg - 90.0 + i * 30.0;
+        for (var i = 0; i <= 12; i++) {
+            var a = deg - 90.0 + i * 15.0;
             pts.add([tipX + half * sinDeg(a), tipY - half * cosDeg(a)]);
         }
         // tail cap: from the right side over the tail end to the left side

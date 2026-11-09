@@ -199,7 +199,7 @@ python3 tools/render_previews.py
 
 ## Changelog
 
-See [CHANGELOG.md](CHANGELOG.md). Versions follow [Semantic Versioning](https://semver.org).
+See [CHANGELOG.md](CHANGELOG.md). Versions follow [Semantic Versioning](https://semver.org); the release checklist is in [AGENTS.md](AGENTS.md).
 
 ## Contributing
 
