@@ -2,6 +2,8 @@
 
 A free, open-source analog watch face for Garmin® smartwatches, built with the Connect IQ™ SDK.
 
+**[Get Schlicht in the Connect IQ Store](https://apps.garmin.com/apps/ac24e6de-055e-409a-8ce6-f0b64e8914a3)** – or build it yourself (see [Build it yourself](#build-it-yourself)).
+
 ## Schlicht – a plain analog watch face
 
 *Schlicht* is German for "plain". Slim white hands and a ring of small grey dots on a black background, with a few things quietly in the background – all in black, white and greys, with a touch of colour for the weather.
@@ -113,6 +115,8 @@ distrobox enter ciq -- "$SDK/bin/monkeydo" "$PWD/bin/schlicht.prg" venu3
 ```
 
 ### Install on your watch
+
+**From the Connect IQ Store (recommended):** open the [store page](https://apps.garmin.com/apps/ac24e6de-055e-409a-8ce6-f0b64e8914a3) on your phone or in the Connect IQ app and install *Schlicht*. You get settings and updates automatically.
 
 **Via USB (quick test, no settings):**
 

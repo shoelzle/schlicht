@@ -8,6 +8,7 @@ Texts for the Connect IQ Store developer dashboard. Keep them in sync with the R
 - **Languages in the app:** English, German
 - **Price:** free
 - **Source code:** https://github.com/shoelzle/schlicht
+- **Store page:** https://apps.garmin.com/apps/ac24e6de-055e-409a-8ce6-f0b64e8914a3
 
 ## Screenshots (to take in the simulator)
 
