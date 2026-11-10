@@ -197,9 +197,9 @@ def extras():
                 a = math.radians(i * 45)
                 sa, ca = math.sin(a), math.cos(a)
                 px, py = 2.4 * ca, 2.4 * sa
-                bx, by = x + 8.8 * sa, y - 8.8 * ca
+                bx, by = x + 9.25 * sa, y - 9.25 * ca
                 out.append(f'<polygon points="{bx - px:.2f},{by - py:.2f} {bx + px:.2f},{by + py:.2f} '
-                           f'{x + 15 * sa:.2f},{y - 15 * ca:.2f}" fill="{SUN}"></polygon>')
+                           f'{x + 15.45 * sa:.2f},{y - 15.45 * ca:.2f}" fill="{SUN}"></polygon>')
         else:                   # small crescent moon: disc with a black disc cut out
             out.append(f'<circle cx="{x:.2f}" cy="{y:.2f}" r="13" fill="{TXT}"></circle>')
             out.append(f'<circle cx="{x + 6.2:.2f}" cy="{y - 4.6:.2f}" r="11" fill="#000000"></circle>')

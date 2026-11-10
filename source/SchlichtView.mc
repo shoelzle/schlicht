@@ -31,8 +31,8 @@ class SchlichtView extends WatchUi.WatchFace {
     private const SUN_YELLOW = 0xf5e050;      // sunrise marker, bright yellow
     // sun marker in px on a 454 px screen: disc, rays (base radius, tip radius, base width)
     private const SUN_DISC_RADIUS = 7.0;
-    private const SUN_RAY_FROM = 8.8;
-    private const SUN_RAY_TO = 15.0;
+    private const SUN_RAY_FROM = 9.25;
+    private const SUN_RAY_TO = 15.45;
     private const SUN_RAY_WIDTH = 4.8;
     private const SOFT_EDGE_OUTER = 0x404040; // white at 25 % over black
     private const SOFT_EDGE_INNER = 0x808080; // white at 50 % over black
