@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 While the version is below 1.0.0, minor versions may also contain changes to the look of the watch face.
 
+## [0.3.6] – 2026-11-10
+
+### Changed
+- Sunrise marker about 20 % larger (rays reach 18.5 instead of 15.45 px, disc radius 8.4 px), so the sun looks as large as the crescent moon at sunset. Proportions and gap stay the same.
+
 ## [0.3.5] – 2026-11-10
 
 ### Changed
@@ -79,6 +84,7 @@ First beta release of the *Schlicht* watch face for Venu 3 and Venu 3S.
 - Always-on mode with thin hands and twelve dots, shifting every minute to follow AMOLED burn-in rules.
 - Setting to turn the second hand on or off.
 
+[0.3.6]: https://github.com/shoelzle/schlicht/compare/v0.3.5...v0.3.6
 [0.3.5]: https://github.com/shoelzle/schlicht/compare/v0.3.4...v0.3.5
 [0.3.4]: https://github.com/shoelzle/schlicht/compare/v0.3.3...v0.3.4
 [0.3.3]: https://github.com/shoelzle/schlicht/compare/v0.3.2...v0.3.3

@@ -192,14 +192,14 @@ def extras():
     for (h, m), off in ((SUNRISE, -15), (SUNSET, 15)):
         x, y = ppt(r, dial(h, m))
         if (h, m) == SUNRISE:   # small sun: disc with eight triangular rays
-            out.append(f'<circle cx="{x:.2f}" cy="{y:.2f}" r="7" fill="{SUN}"></circle>')
+            out.append(f'<circle cx="{x:.2f}" cy="{y:.2f}" r="8.4" fill="{SUN}"></circle>')
             for i in range(8):
                 a = math.radians(i * 45)
                 sa, ca = math.sin(a), math.cos(a)
-                px, py = 2.4 * ca, 2.4 * sa
-                bx, by = x + 9.25 * sa, y - 9.25 * ca
+                px, py = 2.875 * ca, 2.875 * sa
+                bx, by = x + 11.1 * sa, y - 11.1 * ca
                 out.append(f'<polygon points="{bx - px:.2f},{by - py:.2f} {bx + px:.2f},{by + py:.2f} '
-                           f'{x + 15.45 * sa:.2f},{y - 15.45 * ca:.2f}" fill="{SUN}"></polygon>')
+                           f'{x + 18.5 * sa:.2f},{y - 18.5 * ca:.2f}" fill="{SUN}"></polygon>')
         else:                   # small crescent moon: disc with a black disc cut out
             out.append(f'<circle cx="{x:.2f}" cy="{y:.2f}" r="13" fill="{TXT}"></circle>')
             out.append(f'<circle cx="{x + 6.2:.2f}" cy="{y - 4.6:.2f}" r="11" fill="#000000"></circle>')
