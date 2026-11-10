@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 While the version is below 1.0.0, minor versions may also contain changes to the look of the watch face.
 
+## [0.3.11] – 2026-11-10
+
+### Fixed
+- Smoother heart outline: it is now a filled ring (outer edge in grey, inner edge in black) built from 64 points, instead of 32 line segments. `drawLine` rounds the pen width to whole pixels and has square ends, which made the outline look jagged on the watch.
+
 ## [0.3.10] – 2026-11-10
 
 ### Changed
@@ -105,6 +110,7 @@ First beta release of the *Schlicht* watch face for Venu 3 and Venu 3S.
 - Always-on mode with thin hands and twelve dots, shifting every minute to follow AMOLED burn-in rules.
 - Setting to turn the second hand on or off.
 
+[0.3.11]: https://github.com/shoelzle/schlicht/compare/v0.3.10...v0.3.11
 [0.3.10]: https://github.com/shoelzle/schlicht/compare/v0.3.9...v0.3.10
 [0.3.9]: https://github.com/shoelzle/schlicht/compare/v0.3.8...v0.3.9
 [0.3.8]: https://github.com/shoelzle/schlicht/compare/v0.3.7...v0.3.8

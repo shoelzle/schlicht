@@ -64,6 +64,10 @@ class SchlichtView extends WatchUi.WatchFace {
 
     //! Heart outline, unit size 32 x HEART_HEIGHT, centred on 0/0.
     private var _heart as Array<[Float, Float]> = [] as Array<[Float, Float]>;
+    //! Outer and inner edge of the heart outline in screen coordinates,
+    //! built on the first draw (they only depend on font size and screen).
+    private var _heartOuter as Array<[Numeric, Numeric]>? = null;
+    private var _heartInner as Array<[Numeric, Numeric]>? = null;
 
     function initialize() {
         WatchFace.initialize();
@@ -439,13 +443,82 @@ class SchlichtView extends WatchUi.WatchFace {
                 hr.toString(), Graphics.TEXT_JUSTIFY_RIGHT);
         }
 
-        setPen(dc, 2.64 * s);
-        var n = _heart.size();
-        for (var i = 0; i < n; i++) {
-            var p = _heart[i];
-            var q = _heart[(i + 1) % n];
-            dc.drawLine(heartX + p[0] * k, cy + p[1] * k, heartX + q[0] * k, cy + q[1] * k);
+        // The outline is a filled ring: the outer edge in grey, the inner edge
+        // in black on top. Unlike drawLine segments (whole-pixel pen widths,
+        // square ends) this gives a smooth, exactly 2.64 px wide line.
+        var outer = _heartOuter;
+        var inner = _heartInner;
+        if (outer == null || inner == null) {
+            outer = offsetHeart(k, 1.32 * s, heartX, cy);
+            inner = offsetHeart(k, -1.32 * s, heartX, cy);
+            _heartOuter = outer;
+            _heartInner = inner;
         }
+        dc.fillPolygon(outer);
+        setFg(dc, BLACK);
+        dc.fillPolygon(inner);
+    }
+
+    //! The heart curve scaled by k and moved outwards by d (inwards if d < 0),
+    //! placed at (x0, y0). Each point moves along the bisector of its two edge
+    //! normals (mitred, at most 1.6 x d). Points that would cross the vertical
+    //! centre line (at the dip on top and the tip at the bottom) are dropped;
+    //! each gap is closed with one point on the centre line.
+    private function offsetHeart(k as Float, d as Float, x0 as Float, y0 as Float) as Array<[Numeric, Numeric]> {
+        var n = _heart.size();
+        var ox = [] as Array<Float>;
+        var oy = [] as Array<Float>;
+        var crossed = [] as Array<Boolean>;
+        for (var i = 0; i < n; i++) {
+            var p0 = _heart[(i + n - 1) % n];
+            var p1 = _heart[i];
+            var p2 = _heart[(i + 1) % n];
+            // outward edge normals (the curve runs clockwise on screen)
+            var ax = p1[0] - p0[0];
+            var ay = p1[1] - p0[1];
+            var la = Math.sqrt(ax * ax + ay * ay).toFloat();
+            var nax = ay / la;
+            var nay = -ax / la;
+            var bx = p2[0] - p1[0];
+            var by = p2[1] - p1[1];
+            var lb = Math.sqrt(bx * bx + by * by).toFloat();
+            var nbx = by / lb;
+            var nby = -bx / lb;
+            var mx = nax + nbx;
+            var my = nay + nby;
+            var lm = Math.sqrt(mx * mx + my * my).toFloat();
+            mx = mx / lm;
+            my = my / lm;
+            var cosA = mx * nax + my * nay;
+            if (cosA < 0.625) {
+                cosA = 0.625;
+            }
+            var x = p1[0] * k + mx * d / cosA;
+            ox.add(x);
+            oy.add(p1[1] * k + my * d / cosA);
+            crossed.add(p1[0] * x < 0);
+        }
+        var pts = [] as Array<[Numeric, Numeric]>;
+        for (var i = 0; i < n; i++) {
+            if (crossed[i]) {
+                continue;
+            }
+            pts.add([x0 + ox[i], y0 + oy[i]]);
+            var j = (i + 1) % n;
+            if (crossed[j]) {
+                var t = ox[i] / (ox[i] - ox[j]);
+                var y1 = oy[i] + t * (oy[j] - oy[i]);
+                var m = j;
+                while (crossed[m]) {
+                    m = (m + 1) % n;
+                }
+                var q = (m + n - 1) % n;
+                var t2 = ox[m] / (ox[m] - ox[q]);
+                var y2 = oy[m] + t2 * (oy[q] - oy[m]);
+                pts.add([x0, y0 + (y1 + y2) / 2]);
+            }
+        }
+        return pts;
     }
 
     //! Height of capital letters and digits, derived from the font's ascent
@@ -461,12 +534,12 @@ class SchlichtView extends WatchUi.WatchFace {
         return cy + capHeight(font) / 2 - Graphics.getFontAscent(font);
     }
 
-    //! Classic heart curve, sampled into 32 points, bounding box centred on 0/0
+    //! Classic heart curve, sampled into 64 points, bounding box centred on 0/0
     //! (the raw curve spans y = -11.92 .. 17.0).
     private function buildHeart() as Array<[Float, Float]> {
         var pts = [] as Array<[Float, Float]>;
-        for (var i = 0; i < 32; i++) {
-            var t = i * 2 * Math.PI / 32;
+        for (var i = 0; i < 64; i++) {
+            var t = i * 2 * Math.PI / 64;
             var x = 16 * Math.pow(Math.sin(t), 3);
             var y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
             pts.add([x.toFloat(), (y - 2.54).toFloat()]);

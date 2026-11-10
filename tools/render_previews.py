@@ -185,6 +185,47 @@ def launcher_icon_svg():
             + "".join(out) + "</svg>\n")
 
 
+
+def offset_heart(curve, k, d):
+    """Heart curve scaled by k, moved outwards by d (inwards if d < 0).
+    Mirrors offsetHeart() in SchlichtView.mc: mitred offset (at most 1.6 x d);
+    points that cross the vertical centre line are replaced by one point on it."""
+    n = len(curve)
+    ox, oy, crossed = [], [], []
+    for i in range(n):
+        p0, p1, p2 = curve[i - 1], curve[i], curve[(i + 1) % n]
+        ax, ay = p1[0] - p0[0], p1[1] - p0[1]
+        la = math.hypot(ax, ay)
+        nax, nay = ay / la, -ax / la
+        bx, by = p2[0] - p1[0], p2[1] - p1[1]
+        lb = math.hypot(bx, by)
+        nbx, nby = by / lb, -bx / lb
+        mx, my = nax + nbx, nay + nby
+        lm = math.hypot(mx, my)
+        mx, my = mx / lm, my / lm
+        cos_a = max(mx * nax + my * nay, 0.625)
+        x = p1[0] * k + mx * d / cos_a
+        ox.append(x)
+        oy.append(p1[1] * k + my * d / cos_a)
+        crossed.append(p1[0] * x < 0)
+    pts = []
+    for i in range(n):
+        if crossed[i]:
+            continue
+        pts.append((ox[i], oy[i]))
+        j = (i + 1) % n
+        if crossed[j]:
+            t = ox[i] / (ox[i] - ox[j])
+            y1 = oy[i] + t * (oy[j] - oy[i])
+            m = j
+            while crossed[m]:
+                m = (m + 1) % n
+            q = (m - 1) % n
+            t2 = ox[m] / (ox[m] - ox[q])
+            y2 = oy[m] + t2 * (oy[q] - oy[m])
+            pts.append((0.0, (y1 + y2) / 2))
+    return pts
+
 def extras():
     out = []
     # day arc: from "now" (hour hand) to sunset, radius 193, in forecast colours
@@ -213,14 +254,17 @@ def extras():
     k = size * 0.711 / 28.92
     heart_w = 32 * k
     hx = C - 82 - heart_w / 2
-    pts = []
+    # outline as a filled ring (outer edge grey, inner edge black), exactly as
+    # offsetHeart() in SchlichtView.mc builds it
+    curve = []
     for i in range(64):
         t = i * 2 * math.pi / 64
         x = 16 * math.sin(t) ** 3
         y = -(13 * math.cos(t) - 5 * math.cos(2 * t) - 2 * math.cos(3 * t) - math.cos(4 * t)) - 2.54
-        pts.append(f"{hx + x * k:.2f},{C + y * k:.2f}")
-    out.append(f'<polygon points="{" ".join(pts)}" fill="none" stroke="{DATE}" stroke-width="2.64" '
-               f'stroke-linejoin="round"></polygon>')
+        curve.append((x, y))
+    for d, fill in ((1.32, DATE), (-1.32, "#000000")):
+        pts = " ".join(f"{hx + x:.2f},{C + y:.2f}" for x, y in offset_heart(curve, k, d))
+        out.append(f'<polygon points="{pts}" fill="{fill}"></polygon>')
     out.append(text(C - 82 - heart_w - 7, C, HEART_RATE, size, DATE, "end"))
     # notification dots, fading upwards
     for k in range(min(NOTIFICATIONS, 5)):
