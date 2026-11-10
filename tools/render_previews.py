@@ -35,7 +35,8 @@ def ticks():
     for i in range(60):
         major = i % 5 == 0
         x, y = pt(219, i * 6)
-        r, col = (3, "#a6a6a6") if major else (1.6, "#8a8a8a")
+        # radii as fillCircle draws 3.0 and 1.6 on the watch (measured in the simulator)
+        r, col = (4.2, "#a6a6a6") if major else (2.23, "#8a8a8a")
         out.append(f'<circle cx="{x:.2f}" cy="{y:.2f}" r="{r}" fill="{col}"></circle>')
     return out
 
@@ -225,7 +226,7 @@ def extras():
     for k in range(min(NOTIFICATIONS, 5)):
         v = round(0x8a * (1 - k / 4))
         if v:
-            out.append(f'<circle cx="227" cy="{163 - 13 * k}" r="3" fill="#{v:02x}{v:02x}{v:02x}"></circle>')
+            out.append(f'<circle cx="227" cy="{163 - 15.4 * k:.1f}" r="4.2" fill="#{v:02x}{v:02x}{v:02x}"></circle>')
     return "\n".join(out)
 
 

@@ -19,8 +19,11 @@ module NotificationDots {
     //! Grey value (0-255) of the first, brightest dot.
     const FIRST_GREY = 0x8a;
     //! Dot radius and distance between dots, in px on a 454 px screen.
+    //! RADIUS is the same value and the same fillCircle call as the hour dots
+    //! of the dial, so both look exactly alike. fillCircle draws it about
+    //! 8.4 px wide on the watch; STEP leaves a 7 px gap between the dots.
     const RADIUS = 3.0;
-    const STEP = 13.0;
+    const STEP = 15.4;
     //! Extra margin around the dots for touch input, in px on a 454 px screen.
     const TOUCH_MARGIN = 20.0;
 
@@ -52,19 +55,8 @@ module NotificationDots {
                 continue;
             }
             dc.setColor(grey, Graphics.COLOR_TRANSPARENT);
-            fillDot(dc, cx.toFloat(), (firstY - k * STEP * scale).toFloat(), (RADIUS * scale).toFloat());
+            dc.fillCircle(cx, firstY - k * STEP * scale, RADIUS * scale);
         }
-    }
-
-    //! A dot as a 16-sided polygon with an exact radius. fillCircle draws
-    //! dots about 1 px larger, which closes the gaps between them.
-    function fillDot(dc as Dc, x as Float, y as Float, r as Float) as Void {
-        var pts = [] as Array<[Numeric, Numeric]>;
-        for (var i = 0; i < 16; i++) {
-            var a = i * Math.PI / 8;
-            pts.add([x + r * Math.sin(a), y - r * Math.cos(a)]);
-        }
-        dc.fillPolygon(pts);
     }
 
     //! True if (x, y) hits the dot column (with a generous margin) while
