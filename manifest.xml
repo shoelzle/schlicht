@@ -2,7 +2,7 @@
 <!-- Connect IQ manifest for the "Schlicht" watch face. -->
 <iq:manifest version="3" xmlns:iq="http://www.garmin.com/xml/connectiq">
     <iq:application
-        id="01d5e0ac-1675-4dd8-ae9d-ca095a244988"
+        id="9a6636c3-3c49-4334-aa2f-f6aff3408073"
         type="watchface"
         name="@Strings.AppName"
         entry="SchlichtApp"

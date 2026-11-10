@@ -124,6 +124,8 @@ Note the device `venu3` – VS Code builds for `venu3_sim` when running the simu
 
 **As a beta app (with settings and updates):**
 
+If you upload your own build, give it your own app ID first (**Monkey C: Regenerate UUID**, or a new UUID in `manifest.xml`); the ID in this repository belongs to the published store app.
+
 1. Export a store package: **Monkey C: Export Project**, or `monkeyc -f monkey.jungle -e -r -y <key> -o bin/schlicht.iq`. The VS Code extension names the file after the project folder, so clone into a folder called `schlicht` to get `schlicht.iq`.
 2. Upload it as a **beta app** in the developer dashboard: <https://apps.garmin.com/developer/dashboard> (new address: <https://apps-developer.garmin.com>). Beta apps are visible only to you and stay "pending" forever – that is normal.
 3. Beta apps do not appear in the store search. Open the app in the dashboard, copy its store ID from the URL and open `https://apps.garmin.com/de-DE/apps/<store-id>` **on your phone**; it opens in the Connect IQ app, where you install it. The phone must be signed in with the same Garmin account.
@@ -142,6 +144,7 @@ source/Layout.mc               shared positions and sizes (454 px design)
 resources/ resources-deu/      strings (English, German), settings, launcher icon
 docs/images/                   preview images used in this README
 docs/ci/build.yml              CI build template (see below)
+docs/store/listing.md          texts for the Connect IQ Store listing (English, German)
 tools/render_previews.py       regenerates the preview image and the launcher icon
 ```
 

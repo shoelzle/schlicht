@@ -6,6 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 While the version is below 1.0.0, minor versions may also contain changes to the look of the watch face.
 
+## [1.0.0] – 2026-11-10
+
+First public release in the Connect IQ Store.
+
+### Added
+- Store listing texts in English and German in `docs/store/listing.md`.
+
+### Changed
+- New app ID for the public store app (`9a6636c3-3c49-4334-aa2f-f6aff3408073`). The previous ID stays with the private beta app, which the store never releases.
+- From now on releases are called `release X.Y.Z` instead of `beta release X.Y.Z`.
+
 ## [0.3.14] – 2026-11-10
 
 ### Changed
@@ -129,6 +140,7 @@ First beta release of the *Schlicht* watch face for Venu 3 and Venu 3S.
 - Always-on mode with thin hands and twelve dots, shifting every minute to follow AMOLED burn-in rules.
 - Setting to turn the second hand on or off.
 
+[1.0.0]: https://github.com/shoelzle/schlicht/compare/v0.3.14...v1.0.0
 [0.3.14]: https://github.com/shoelzle/schlicht/compare/v0.3.13...v0.3.14
 [0.3.13]: https://github.com/shoelzle/schlicht/compare/v0.3.12...v0.3.13
 [0.3.12]: https://github.com/shoelzle/schlicht/compare/v0.3.11...v0.3.12
