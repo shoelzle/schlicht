@@ -2,8 +2,6 @@
 
 A free, open-source analog watch face for Garmin® smartwatches, built with the Connect IQ™ SDK.
 
-> **Status:** in development. *Schlicht* runs on a Venu 3 as a private beta app; it is not published in the Connect IQ Store yet. For now you build and install it yourself (see [Build it yourself](#build-it-yourself)).
-
 ## Schlicht – a plain analog watch face
 
 *Schlicht* is German for "plain". Slim white hands and a ring of small grey dots on a black background, with a few things quietly in the background – all in black, white and greys, with a touch of colour for the weather.
@@ -23,7 +21,7 @@ A free, open-source analog watch face for Garmin® smartwatches, built with the 
   - At night the arc is hidden; only the sun and moon markers with their times remain. Without weather data the arc stays grey.
 - **Date** at 3 o'clock, e.g. "Sa 7", in your watch's language.
 - **Heart rate** at 9 o'clock: the heart is always there, exactly as tall as the date digits; the number appears to its left only while a live reading is available.
-- **Notifications:** one small dot per unread phone notification, stacked towards 12 o'clock and fading as they go up. **Press and hold** the dots to open the notification list (tested on a Venu 3).
+- **Notifications:** one small dot per unread phone notification (up to four), stacked towards 12 o'clock and fading as they go up. **Press and hold** the dots to open the notification list (tested on a Venu 3).
 - **Always-on mode:** only thin hands and twelve dots, shifting a few pixels every minute to follow Garmin's burn-in rules for AMOLED screens.
 
 ### Settings
@@ -126,7 +124,7 @@ Note the device `venu3` – VS Code builds for `venu3_sim` when running the simu
 
 **As a beta app (with settings and updates):**
 
-1. Export a store package: **Monkey C: Export Project**, or `monkeyc -f monkey.jungle -e -r -y <key> -o bin/schlicht.iq`.
+1. Export a store package: **Monkey C: Export Project**, or `monkeyc -f monkey.jungle -e -r -y <key> -o bin/schlicht.iq`. The VS Code extension names the file after the project folder, so clone into a folder called `schlicht` to get `schlicht.iq`.
 2. Upload it as a **beta app** in the developer dashboard: <https://apps.garmin.com/developer/dashboard> (new address: <https://apps-developer.garmin.com>). Beta apps are visible only to you and stay "pending" forever – that is normal.
 3. Beta apps do not appear in the store search. Open the app in the dashboard, copy its store ID from the URL and open `https://apps.garmin.com/de-DE/apps/<store-id>` **on your phone**; it opens in the Connect IQ app, where you install it. The phone must be signed in with the same Garmin account.
 4. For updates, upload the new `.iq` as a new version of the same beta app.
@@ -153,7 +151,7 @@ tools/render_previews.py       regenerates the preview image and the launcher ic
 | Date | `Time.Gregorian` (weekday abbreviation in the watch's language, day without leading zero) |
 | Day arc colours | `Weather.getCurrentConditions()` and `Weather.getHourlyForecast()`, rebuilt every 10 minutes |
 | Heart rate | `Activity.getActivityInfo().currentHeartRate` (live value only) |
-| Notifications | `System.getDeviceSettings().notificationCount`, one dot per notification (up to five, each darker than the one below); press-and-hold opens `COMPLICATION_TYPE_NOTIFICATION_COUNT` via `Complications.exitTo` (needs the `ComplicationSubscriber` permission) |
+| Notifications | `System.getDeviceSettings().notificationCount`, one dot per notification (up to four, each darker than the one below); press-and-hold opens `COMPLICATION_TYPE_NOTIFICATION_COUNT` via `Complications.exitTo` (needs the `ComplicationSubscriber` permission) |
 
 Drawing notes: hands are filled polygons, so fractional widths work with anti-aliasing; their soft edge is two slightly wider grey layers (white at 25 % and 50 % over black). Colours are only set with `setColor`: the alpha fill tool `setFill` is avoided, because opaque white as ARGB (`0xFFFFFFFF`) equals `-1`, which Connect IQ treats as `COLOR_TRANSPARENT`. Text is positioned by its cap height (derived from `getFontAscent`), so digits and the heart line up exactly. Sunrise and sunset come from `Weather.getSunrise/getSunset` for the weather location (falling back to the native complications). `drawArc` only takes whole degrees, so the day arc is drawn in 1–2° pieces.
 
