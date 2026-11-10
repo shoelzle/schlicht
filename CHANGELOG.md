@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 While the version is below 1.0.0, minor versions may also contain changes to the look of the watch face.
 
+## [0.3.8] – 2026-11-10
+
+### Changed
+- Notification dots start 13 px higher: the first dot now sits where the second one used to be (64 instead of 51 px above the centre), further away from the hands' hub. The column still grows upwards; the touch area moves with it.
+
 ## [0.3.7] – 2026-11-10
 
 ### Fixed
@@ -89,6 +94,7 @@ First beta release of the *Schlicht* watch face for Venu 3 and Venu 3S.
 - Always-on mode with thin hands and twelve dots, shifting every minute to follow AMOLED burn-in rules.
 - Setting to turn the second hand on or off.
 
+[0.3.8]: https://github.com/shoelzle/schlicht/compare/v0.3.7...v0.3.8
 [0.3.7]: https://github.com/shoelzle/schlicht/compare/v0.3.6...v0.3.7
 [0.3.6]: https://github.com/shoelzle/schlicht/compare/v0.3.5...v0.3.6
 [0.3.5]: https://github.com/shoelzle/schlicht/compare/v0.3.4...v0.3.5

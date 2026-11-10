@@ -225,7 +225,7 @@ def extras():
     for k in range(min(NOTIFICATIONS, 5)):
         v = round(0x8a * (1 - k / 4))
         if v:
-            out.append(f'<circle cx="227" cy="{176 - 13 * k}" r="3" fill="#{v:02x}{v:02x}{v:02x}"></circle>')
+            out.append(f'<circle cx="227" cy="{163 - 13 * k}" r="3" fill="#{v:02x}{v:02x}{v:02x}"></circle>')
     return "\n".join(out)
 
 

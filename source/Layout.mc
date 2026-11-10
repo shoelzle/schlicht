@@ -9,7 +9,7 @@ module Layout {
     const DIAL_DOT_RADIUS = 219.0;
 
     // Notification dots: first dot above the centre, column grows upwards.
-    const DOTS_FIRST_Y = 176.0;
+    const DOTS_FIRST_Y = 163.0;
 
     // Heart (left, 9 o'clock) and date (right, 3 o'clock): their inner edges
     // are this far from the centre, on both sides the same. The heart rate
