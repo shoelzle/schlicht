@@ -52,8 +52,19 @@ module NotificationDots {
                 continue;
             }
             dc.setColor(grey, Graphics.COLOR_TRANSPARENT);
-            dc.fillCircle(cx, firstY - k * STEP * scale, RADIUS * scale);
+            fillDot(dc, cx.toFloat(), (firstY - k * STEP * scale).toFloat(), (RADIUS * scale).toFloat());
         }
+    }
+
+    //! A dot as a 16-sided polygon with an exact radius. fillCircle draws
+    //! dots about 1 px larger, which closes the gaps between them.
+    function fillDot(dc as Dc, x as Float, y as Float, r as Float) as Void {
+        var pts = [] as Array<[Numeric, Numeric]>;
+        for (var i = 0; i < 16; i++) {
+            var a = i * Math.PI / 8;
+            pts.add([x + r * Math.sin(a), y - r * Math.cos(a)]);
+        }
+        dc.fillPolygon(pts);
     }
 
     //! True if (x, y) hits the dot column (with a generous margin) while
