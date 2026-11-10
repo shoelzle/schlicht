@@ -45,7 +45,7 @@ The second hand is only visible while the watch is "awake" (after a wrist turn o
 | Watch | Screen | Status |
 |---|---|---|
 | Venu 3 | 454 × 454, round, AMOLED | target device, tested on the watch |
-| Venu 3S | 390 × 390, round, AMOLED | builds, not yet tested on a watch |
+| Venu 3S | 390 × 390, round, AMOLED | tested in the simulator |
 
 All sizes are designed for 454 px and scaled to the screen, so other round watches with Connect IQ API 4.2 or newer can be added in `manifest.xml`.
 
