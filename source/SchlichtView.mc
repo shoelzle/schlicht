@@ -108,7 +108,6 @@ class SchlichtView extends WatchUi.WatchFace {
         var hourAngle = ((time.hour % 12) + time.min / 60.0) * 30.0;
 
         if (!_awake) {
-            setFg(dc, WHITE);
             drawLowPower(dc, cx, cy, s, hourAngle, time.min * 6.0, time.min);
             return;
         }
@@ -120,11 +119,22 @@ class SchlichtView extends WatchUi.WatchFace {
         NotificationDots.draw(dc, cx, Layout.DOTS_FIRST_Y * s, s);
 
         var minuteAngle = (time.min + time.sec / 60.0) * 6.0;
-        drawHand(dc, cx, cy, hourAngle, 120 * s, 16 * s, 8.28 * s, true);
-        drawHand(dc, cx, cy, minuteAngle, 198 * s, 16 * s, 5.18 * s, true);
+        drawHourMinute(dc, cx, cy, s, hourAngle, minuteAngle);
         if (_showSeconds) {
             drawHand(dc, cx, cy, time.sec * 6.0, 204 * s, 34 * s, 1.84 * s, false);
         }
+        drawHub(dc, cx, cy, s);
+    }
+
+    //! Hour and minute hand, shared by the normal and the always-on view.
+    private function drawHourMinute(dc as Dc, cx as Float, cy as Float, s as Float,
+            hourAngle as Float, minuteAngle as Float) as Void {
+        drawHand(dc, cx, cy, hourAngle, 120 * s, 16 * s, 8.28 * s, true);
+        drawHand(dc, cx, cy, minuteAngle, 198 * s, 16 * s, 5.18 * s, true);
+    }
+
+    //! White centre disc with a small black hole, on top of the hands.
+    private function drawHub(dc as Dc, cx as Float, cy as Float, s as Float) as Void {
         setFg(dc, WHITE);
         dc.fillCircle(cx, cy, 6 * s);
         setFg(dc, BLACK);
@@ -549,32 +559,38 @@ class SchlichtView extends WatchUi.WatchFace {
 
     // ----------------------------------------------------------- low power
 
-    //! Always-on (low power) mode on AMOLED screens.
+    //! Always-on (low power) mode on AMOLED screens: hour and minute hand
+    //! (with centre disc) and the 12 hour dots, in the same size and place as
+    //! in the normal view, nothing else.
     //!
-    //! Garmin's burn-in rules: at most 10 % of the pixels lit and no pixel lit for
-    //! more than 3 minutes. We therefore draw only thin hands and 12 small dots and
-    //! shift everything by 4 px in a 4-minute cycle (right, down, left, up). Within
-    //! any 3 consecutive minutes no pixel of a 2 px line or a 3 px dot stays lit.
+    //! Garmin's burn-in rules: at most 10 % of the pixels lit and no pixel lit
+    //! for more than 3 minutes. Full-width hands would keep their middle lit, so
+    //! every third pixel row is blanked, and the blank rows move down by one row
+    //! each minute. Every pixel is therefore dark at least one minute in three;
+    //! the view looks slightly dimmed (two thirds of the pixels) and lights only
+    //! about 2 % of the screen.
     private function drawLowPower(dc as Dc, cx as Float, cy as Float, s as Float,
             hourAngle as Float, minuteAngle as Float, minute as Number) as Void {
-        var dx = [4, 0, -4, 0] as Array<Number>;
-        var dy = [0, 4, 0, -4] as Array<Number>;
-        var i = minute % 4;
-        var x0 = cx + dx[i];
-        var y0 = cy + dy[i];
-
         var r = Layout.DIAL_DOT_RADIUS * s;
+        setFg(dc, MAJOR_DOT_GREY);
         for (var h = 0; h < 12; h++) {
             var deg = h * 30.0;
-            dc.fillCircle(x0 + r * sinDeg(deg), y0 - r * cosDeg(deg), 3);
+            dc.fillCircle(cx + r * sinDeg(deg), cy - r * cosDeg(deg), 3.0 * s);
         }
-        dc.setPenWidth(2);
-        drawLine(dc, x0, y0, hourAngle, 120 * s);
-        drawLine(dc, x0, y0, minuteAngle, 198 * s);
-    }
+        drawHourMinute(dc, cx, cy, s, hourAngle, minuteAngle);
+        drawHub(dc, cx, cy, s);
 
-    private function drawLine(dc as Dc, cx as Float, cy as Float, deg as Float, length as Float) as Void {
-        dc.drawLine(cx, cy, cx + length * sinDeg(deg), cy - length * cosDeg(deg));
+        // blank every third row, exactly one pixel high (no anti-aliasing)
+        if (dc has :setAntiAlias) {
+            dc.setAntiAlias(false);
+        }
+        setFg(dc, BLACK);
+        dc.setPenWidth(1);
+        var width = dc.getWidth();
+        var height = dc.getHeight();
+        for (var y = minute % 3; y < height; y += 3) {
+            dc.drawLine(0, y, width, y);
+        }
     }
 
     // ------------------------------------------------------------- helpers

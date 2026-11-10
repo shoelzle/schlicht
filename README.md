@@ -22,7 +22,7 @@ A free, open-source analog watch face for Garmin® smartwatches, built with the 
 - **Date** at 3 o'clock, e.g. "Sa 7", in your watch's language.
 - **Heart rate** at 9 o'clock: the heart is always there, exactly as tall as the date digits; the number appears to its left only while a live reading is available.
 - **Notifications:** one small dot per unread phone notification (up to four), stacked towards 12 o'clock and fading as they go up. **Press and hold** the dots to open the notification list (tested on a Venu 3).
-- **Always-on mode:** only thin hands and twelve dots, shifting a few pixels every minute to follow Garmin's burn-in rules for AMOLED screens.
+- **Always-on mode:** only the hour and minute hand and the twelve hour dots, in the same size and place as in the normal view, slightly dimmed. To follow Garmin's burn-in rules for AMOLED screens, every third pixel row stays dark and the dark rows move by one row each minute, so no pixel is lit for more than two minutes in a row.
 
 ### Settings
 
