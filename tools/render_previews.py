@@ -1,6 +1,6 @@
 """Render preview images of the "Schlicht" watch face for the README.
 
-The drawing mirrors watchfaces/schlicht/source/SchlichtView.mc (454 px design
+The drawing mirrors source/SchlichtView.mc (454 px design
 size, time 10:09:36, example data below). Run from the repository root:
 
     python3 tools/render_previews.py
@@ -75,7 +75,7 @@ def face(variant):
 
 
 FONT = "Roboto, Inter, Helvetica, Arial, sans-serif"
-ICON, TXT, DATE, SUN = "#8a8a8a", "#bdbdbd", "#d6d6d6", "#d4c27e"
+ICON, TXT, DATE, SUN = "#8a8a8a", "#bdbdbd", "#d6d6d6", "#f5e050"
 HEART = ('<path d="M0 6.5 C -9.5 0.5 -9 -7 -4.2 -7 C -1.8 -7 -0.4 -5.4 0 -4.2 '
          'C 0.4 -5.4 1.8 -7 4.2 -7 C 9 -7 9.5 0.5 0 6.5 Z"></path>')
 
@@ -191,13 +191,15 @@ def extras():
     out.append(weather_arc(r))
     for (h, m), off in ((SUNRISE, -15), (SUNSET, 15)):
         x, y = ppt(r, dial(h, m))
-        if (h, m) == SUNRISE:   # small sun: disc with eight rays
-            out.append(f'<circle cx="{x:.2f}" cy="{y:.2f}" r="6" fill="{SUN}"></circle>')
+        if (h, m) == SUNRISE:   # small sun: disc with eight triangular rays
+            out.append(f'<circle cx="{x:.2f}" cy="{y:.2f}" r="7" fill="{SUN}"></circle>')
             for i in range(8):
                 a = math.radians(i * 45)
-                out.append(f'<line x1="{x + 9.5 * math.sin(a):.2f}" y1="{y - 9.5 * math.cos(a):.2f}" '
-                           f'x2="{x + 14 * math.sin(a):.2f}" y2="{y - 14 * math.cos(a):.2f}" '
-                           f'stroke="{SUN}" stroke-width="2.5"></line>')
+                sa, ca = math.sin(a), math.cos(a)
+                px, py = 2.4 * ca, 2.4 * sa
+                bx, by = x + 8.8 * sa, y - 8.8 * ca
+                out.append(f'<polygon points="{bx - px:.2f},{by - py:.2f} {bx + px:.2f},{by + py:.2f} '
+                           f'{x + 15 * sa:.2f},{y - 15 * ca:.2f}" fill="{SUN}"></polygon>')
         else:                   # small crescent moon: disc with a black disc cut out
             out.append(f'<circle cx="{x:.2f}" cy="{y:.2f}" r="13" fill="{TXT}"></circle>')
             out.append(f'<circle cx="{x + 6.2:.2f}" cy="{y - 4.6:.2f}" r="11" fill="#000000"></circle>')
@@ -241,7 +243,7 @@ SVG = """<svg xmlns="http://www.w3.org/2000/svg" width="454" height="454" viewBo
 def main():
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     images = os.path.join(root, "docs", "images")
-    icon = os.path.join(root, "watchfaces", "schlicht", "resources", "drawables", "launcher_icon.png")
+    icon = os.path.join(root, "resources", "drawables", "launcher_icon.png")
     os.makedirs(images, exist_ok=True)
     rsvg = shutil.which("rsvg-convert")
     for key, label in VARIANTS.items():

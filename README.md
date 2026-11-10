@@ -18,7 +18,7 @@ A free, open-source analog watch face for Garmin® smartwatches, built with the 
 - **Day arc:** a fine arc from the hour hand to sunset shows how much daylight is left.
   - Softly coloured by the hourly forecast: muted yellow for sun, grey for clouds, blue-grey for rain, cool grey for snow, evening red before a clear sunset. Colours blend smoothly from hour to hour.
   - Fades in about an hour before the hour hand and fades out towards sunset.
-  - Sunrise is marked with a small yellowish sun, sunset with a small crescent moon, each with its time (12/24-hour as set on the watch).
+  - Sunrise is marked with a small bright yellow sun, sunset with a small crescent moon, each with its time (12/24-hour as set on the watch).
   - On long days (more than 11 hours between sunrise and sunset) the arc becomes a slight spiral that moves inwards over time, so its end never overlaps its start.
   - At night the arc is hidden; only the sun and moon markers with their times remain. Without weather data the arc stays grey.
 - **Date** at 3 o'clock, e.g. "Sa 7", in your watch's language.
@@ -74,13 +74,12 @@ Keep it **outside this repository**, back it up, and always use the same key for
 
 ### Run in the simulator
 
-**With VS Code:** open the folder `watchfaces/schlicht` (not the repository root), press `F5` and choose *Venu 3*. If `F5` does nothing, create a launch configuration via *Run and Debug → create a launch.json file → Monkey C*.
+**With VS Code:** open the repository folder, press `F5` and choose *Venu 3*. If `F5` does nothing, create a launch configuration via *Run and Debug → create a launch.json file → Monkey C*.
 
 **From the command line:**
 
 ```sh
 SDK=$(cat ~/.Garmin/ConnectIQ/current-sdk.cfg)
-cd watchfaces/schlicht
 "$SDK/bin/monkeyc" -f monkey.jungle -d venu3 -y ~/.garmin/developer_key.der -o bin/schlicht.prg
 "$SDK/bin/connectiq" &          # start the simulator
 "$SDK/bin/monkeydo" bin/schlicht.prg venu3
@@ -112,7 +111,6 @@ distrobox enter ciq -- sudo apt install -y libsm6 libice6 libxext6 libxrender1 l
 
 # start the simulator in the box, build on your normal system, load from the box:
 distrobox enter ciq -- "$SDK/bin/connectiq" &
-cd watchfaces/schlicht
 distrobox enter ciq -- "$SDK/bin/monkeydo" "$PWD/bin/schlicht.prg" venu3
 ```
 
@@ -136,14 +134,14 @@ Note the device `venu3` – VS Code builds for `venu3_sim` when running the simu
 ## How it works
 
 ```
-watchfaces/schlicht/
-  source/SchlichtApp.mc        entry point, settings changes
-  source/SchlichtView.mc       drawing: dial, hands, day arc, date, heart rate, always-on
-  source/WeatherArc.mc         forecast → colours along the day arc
-  source/SchlichtDelegate.mc   press-and-hold on the notification dots
-  source/NotificationDots.mc   notification dots: drawing and touch area
-  source/Layout.mc             shared positions and sizes (454 px design)
-  resources/ resources-deu/    strings (English, German), settings, launcher icon
+manifest.xml, monkey.jungle    app manifest (devices, permissions, languages) and build file
+source/SchlichtApp.mc          entry point, settings changes
+source/SchlichtView.mc         drawing: dial, hands, day arc, date, heart rate, always-on
+source/WeatherArc.mc           forecast → colours along the day arc
+source/SchlichtDelegate.mc     press-and-hold on the notification dots
+source/NotificationDots.mc     notification dots: drawing and touch area
+source/Layout.mc               shared positions and sizes (454 px design)
+resources/ resources-deu/      strings (English, German), settings, launcher icon
 docs/images/                   preview images used in this README
 docs/ci/build.yml              CI build template (see below)
 tools/render_previews.py       regenerates the preview image and the launcher icon

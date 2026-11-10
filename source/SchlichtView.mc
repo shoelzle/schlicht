@@ -28,7 +28,12 @@ class SchlichtView extends WatchUi.WatchFace {
     private const TEXT_GREY = 0xbdbdbd;       // sunrise/sunset times, moon
     private const INFO_GREY = 0xd6d6d6;       // heart, heart rate and date
     private const ARC_DAY = 0x4a4a4a;         // day arc without weather data
-    private const SUN_YELLOW = 0xd4c27e;      // sunrise marker
+    private const SUN_YELLOW = 0xf5e050;      // sunrise marker, bright yellow
+    // sun marker in px on a 454 px screen: disc, rays (base radius, tip radius, base width)
+    private const SUN_DISC_RADIUS = 7.0;
+    private const SUN_RAY_FROM = 8.8;
+    private const SUN_RAY_TO = 15.0;
+    private const SUN_RAY_WIDTH = 4.8;
     private const SOFT_EDGE_OUTER = 0x404040; // white at 25 % over black
     private const SOFT_EDGE_INNER = 0x808080; // white at 50 % over black
 
@@ -301,19 +306,20 @@ class SchlichtView extends WatchUi.WatchFace {
         dc.drawArc(cx, cy, r + 1.5 * s, Graphics.ARC_CLOCKWISE, a1, a2);
     }
 
-    //! Sunrise marker: a small, slightly yellow sun – a disc and eight rays
-    //! with a clear gap in between. Rays are thin polygons, not lines, so
-    //! their ends are exact (lines with a pen width get caps that close the gap).
+    //! Sunrise marker: a small, slightly yellow sun – a disc and eight
+    //! triangular rays with a clear gap in between. Rays are polygons, so their
+    //! size and the gap are exact (fillCircle only rounds the disc).
     private function drawSun(dc as Dc, x as Float, y as Float, s as Float) as Void {
         setFg(dc, SUN_YELLOW);
-        dc.fillCircle(x, y, 6.0 * s);
+        dc.fillCircle(x, y, SUN_DISC_RADIUS * s);
         for (var i = 0; i < 8; i++) {
-            fillBar(dc, x, y, i * 45.0, 9.5 * s, 14.0 * s, 2.5 * s);
+            fillRay(dc, x, y, i * 45.0, SUN_RAY_FROM * s, SUN_RAY_TO * s, SUN_RAY_WIDTH * s);
         }
     }
 
-    //! A straight bar from radius r1 to r2 around (x, y), without round ends.
-    private function fillBar(dc as Dc, x as Float, y as Float, deg as Float,
+    //! A triangle pointing outwards: base of the given width at radius r1,
+    //! tip at radius r2 around (x, y).
+    private function fillRay(dc as Dc, x as Float, y as Float, deg as Float,
             r1 as Float, r2 as Float, width as Float) as Void {
         var sin = sinDeg(deg);
         var cos = cosDeg(deg);
@@ -321,9 +327,7 @@ class SchlichtView extends WatchUi.WatchFace {
         var py = width / 2 * sin;
         var x1 = x + r1 * sin;
         var y1 = y - r1 * cos;
-        var x2 = x + r2 * sin;
-        var y2 = y - r2 * cos;
-        dc.fillPolygon([[x1 - px, y1 - py], [x1 + px, y1 + py], [x2 + px, y2 + py], [x2 - px, y2 - py]]);
+        dc.fillPolygon([[x1 - px, y1 - py], [x1 + px, y1 + py], [x + r2 * sin, y - r2 * cos]]);
     }
 
     //! Sunset marker: a small crescent moon (a disc with a black disc cut out).

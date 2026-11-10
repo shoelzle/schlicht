@@ -31,7 +31,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      PROJECT_DIR: watchfaces/schlicht
+      PROJECT_DIR: .
       DEVICE: venu3
       SDK_VERSION: "^8.0.0"
     steps:
