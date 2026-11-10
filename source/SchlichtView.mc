@@ -308,10 +308,10 @@ class SchlichtView extends WatchUi.WatchFace {
 
     //! Sunrise marker: a small, slightly yellow sun – a disc and eight
     //! triangular rays with a clear gap in between. Rays are polygons, so their
-    //! size and the gap are exact (fillCircle only rounds the disc).
+    //! size and the gap are exact; the disc is a polygon too (see fillDisc).
     private function drawSun(dc as Dc, x as Float, y as Float, s as Float) as Void {
         setFg(dc, SUN_YELLOW);
-        dc.fillCircle(x, y, SUN_DISC_RADIUS * s);
+        fillDisc(dc, x, y, SUN_DISC_RADIUS * s);
         for (var i = 0; i < 8; i++) {
             fillRay(dc, x, y, i * 45.0, SUN_RAY_FROM * s, SUN_RAY_TO * s, SUN_RAY_WIDTH * s);
         }
@@ -333,9 +333,21 @@ class SchlichtView extends WatchUi.WatchFace {
     //! Sunset marker: a small crescent moon (a disc with a black disc cut out).
     private function drawMoon(dc as Dc, x as Float, y as Float, s as Float) as Void {
         setFg(dc, TEXT_GREY);
-        dc.fillCircle(x, y, 13.0 * s);
+        fillDisc(dc, x, y, 13.0 * s);
         setFg(dc, BLACK);
-        dc.fillCircle(x + 6.2 * s, y - 4.6 * s, 11.0 * s);
+        fillDisc(dc, x + 6.2 * s, y - 4.6 * s, 11.0 * s);
+    }
+
+    //! A filled circle as a 32-sided polygon with an exact, fractional radius.
+    //! fillCircle rounds the radius to whole pixels and draws the edge wider,
+    //! which made the sun's disc almost touch its rays on the watch.
+    private function fillDisc(dc as Dc, x as Float, y as Float, r as Float) as Void {
+        var pts = [] as Array<[Numeric, Numeric]>;
+        for (var i = 0; i < 32; i++) {
+            var deg = i * 11.25;
+            pts.add([x + r * sinDeg(deg), y - r * cosDeg(deg)]);
+        }
+        dc.fillPolygon(pts);
     }
 
     //! Sunrise and sunset in seconds since local midnight, refreshed every
